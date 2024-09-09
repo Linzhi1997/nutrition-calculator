@@ -85,5 +85,11 @@ public class ProfileDaoImpl implements ProfileDao {
         return profileList;
     }
 
-
+    @Override
+    public void deleteProfileById(Integer profileId) {
+        String sql = "DELETE FROM profile WHERE profile_id=:profileId ";
+        Map<String,Object> map = new HashMap<>();
+        map.put("profileId",profileId);
+        namedParameterJdbcTemplate.update(sql,map);
+    }
 }

@@ -12,4 +12,5 @@ public interface ProfileDao {
     Profile getProfileById(Integer profileId);
     Profile getLastProfileByUserId(Integer userId);
     List<Profile> getProfileListByUserId(Integer userId);
+    void deleteProfileById(Integer profileId);
 }

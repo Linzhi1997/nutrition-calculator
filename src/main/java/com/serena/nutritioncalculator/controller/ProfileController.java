@@ -33,4 +33,11 @@ public class ProfileController {
         return ResponseEntity.status(HttpStatus.OK).body(profileList);
     }
 
+    // 刪除基本資料表
+    @DeleteMapping("/users/profiles/{profileId}")
+    public ResponseEntity deleteProfileById(@PathVariable Integer profileId){
+        profileServer.deleteProfileById(profileId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }

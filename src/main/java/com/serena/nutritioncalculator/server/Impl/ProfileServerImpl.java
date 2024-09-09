@@ -123,6 +123,11 @@ public class ProfileServerImpl implements ProfileServer {
         return profileList;
     }
 
+    @Override
+    public void deleteProfileById(Integer profileId) {
+        profileDao.deleteProfileById(profileId);
+    }
+
     // 自動計算年齡
     private Integer calculateAge(LocalDate birth) {
         if (birth == null) {
