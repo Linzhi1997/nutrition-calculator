@@ -2,7 +2,7 @@ package com.serena.nutritioncalculator.dao.Impl;
 
 import com.serena.nutritioncalculator.dao.UserDao;
 import com.serena.nutritioncalculator.dto.UserRegisterRequest;
-import com.serena.nutritioncalculator.mapper.UserRowmapper;
+import com.serena.nutritioncalculator.mapper.UserRowMapper;
 import com.serena.nutritioncalculator.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -48,7 +48,7 @@ public class UserDaoImpl implements UserDao {
                 "WHERE user_id = :userId";
         Map<String,Object> map = new HashMap<>();
         map.put("userId",userId);
-        List<User> users = namedParameterJdbcTemplate.query(sql,map,new UserRowmapper());
+        List<User> users = namedParameterJdbcTemplate.query(sql,map,new UserRowMapper());
         if(users.size()>0){
             return users.get(0);
         }else{
@@ -62,7 +62,7 @@ public class UserDaoImpl implements UserDao {
                 "WHERE email = :email";
         Map<String,Object> map = new HashMap<>();
         map.put("email",email);
-        List<User> userList = namedParameterJdbcTemplate.query(sql,map,new UserRowmapper());
+        List<User> userList = namedParameterJdbcTemplate.query(sql,map,new UserRowMapper());
         if(userList.size()>0){
             return userList.get(0);
         }else{
