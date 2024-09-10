@@ -3,8 +3,6 @@ package com.serena.nutritioncalculator.server;
 
 import com.serena.nutritioncalculator.dto.ProfileCreateRequest;
 import com.serena.nutritioncalculator.model.Profile;
-import org.springframework.web.bind.annotation.PathVariable;
-
 import java.util.List;
 
 

@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.*;
+import java.util.Date;
 import java.util.List;
 
 @Component
 public class ProfileServerImpl implements ProfileServer {
 
-    @Autowired
     private static final Logger log = LoggerFactory.getLogger(ProfileServerImpl.class);
     @Autowired
     ProfileDao profileDao;
@@ -87,7 +87,7 @@ public class ProfileServerImpl implements ProfileServer {
         }
         profileCreateParams.setGoalWeight(goalWeight);
         profileCreateParams.setExpectedWeightChange(calculateExpectedWeightChange(weight, goalWeight, TDEE, BMR));
-        profileCreateParams.setProfileCreatedDate(LocalDate.now());
+        profileCreateParams.setProfileCreatedDate(new Date());
 
         return profileDao.createProfile(profileCreateParams);
     }
@@ -182,6 +182,5 @@ public class ProfileServerImpl implements ProfileServer {
             return String.format("理想的體重上升速度：%.1f kg/週 ~ %.1f kg/週 之間", minGain, maxGain);
         }
     }
-
 
 }

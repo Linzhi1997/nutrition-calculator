@@ -18,7 +18,7 @@ public class ProfileHistoryRowMapper implements RowMapper<ProfileHistoryEntry> {
     @Override
     public ProfileHistoryEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
         ProfileHistoryEntry profileHistoryEntry = new ProfileHistoryEntry();
-        profileHistoryEntry.setProfileCreatedDate(rs.getDate("profile_created_date").toLocalDate());
+        profileHistoryEntry.setProfileCreatedDate(rs.getDate("profile_created_date"));
         profileHistoryEntry.setValue(rs.getFloat(type.name().toLowerCase()));
         return profileHistoryEntry;
     }

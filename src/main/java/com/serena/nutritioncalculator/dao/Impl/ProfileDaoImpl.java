@@ -1,7 +1,6 @@
 package com.serena.nutritioncalculator.dao.Impl;
 
 import com.serena.nutritioncalculator.dao.ProfileDao;
-import com.serena.nutritioncalculator.dao.UserDao;
 import com.serena.nutritioncalculator.dto.ProfileCreateParams;
 import com.serena.nutritioncalculator.mapper.ProfileRowMapper;
 import com.serena.nutritioncalculator.model.Profile;
@@ -13,9 +12,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class ProfileDaoImpl implements ProfileDao {
@@ -39,7 +36,7 @@ public class ProfileDaoImpl implements ProfileDao {
         map.put("tdee", profileCreateParams.getTdee());
         map.put("goalWeight", profileCreateParams.getGoalWeight());
         map.put("expectedWeightChange", profileCreateParams.getExpectedWeightChange());
-        map.put("profileCreatedDate", LocalDate.now());
+        map.put("profileCreatedDate", new Date());
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(sql,new MapSqlParameterSource(map),keyHolder);

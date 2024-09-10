@@ -1,5 +1,7 @@
 package com.serena.nutritioncalculator.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.serena.nutritioncalculator.constant.SexCategory;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -22,5 +24,6 @@ public class UserRegisterRequest {
     @NotNull
     private SexCategory sex;
     @NotNull
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate   birth;
 }

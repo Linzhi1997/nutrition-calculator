@@ -11,10 +11,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserDaoImpl implements UserDao {
@@ -25,9 +22,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Integer createUser(UserRegisterRequest userRegisterRequest) {
         String sql = "INSERT INTO users (user_name,email,password,sex,birth,user_created_date) " +
-                "VALUES (:userName,:email,:password,:sex,:birth,:userCreatedDate)";
+                " VALUES (:userName,:email,:password,:sex,:birth,:userCreatedDate)";
         Map<String,Object> map = new HashMap<>();
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+
         map.put("userName",userRegisterRequest.getUserName());
         map.put("email",userRegisterRequest.getEmail());
         map.put("password",userRegisterRequest.getPassword());
@@ -35,6 +32,7 @@ public class UserDaoImpl implements UserDao {
         map.put("birth",userRegisterRequest.getBirth());
         map.put("userCreatedDate",new Date());
 
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(sql,new MapSqlParameterSource(map),keyHolder);
         Integer userId = keyHolder.getKey().intValue();
         return userId;

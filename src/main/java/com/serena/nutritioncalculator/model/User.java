@@ -1,6 +1,8 @@
 package com.serena.nutritioncalculator.model;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.serena.nutritioncalculator.constant.SexCategory;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,5 +18,5 @@ public class User {
     private String  password;
     private SexCategory sex;
     private LocalDate   birth;
-    private Date    userCreatedDate;
+    private Date        userCreatedDate;
 }

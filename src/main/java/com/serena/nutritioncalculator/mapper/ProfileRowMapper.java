@@ -22,7 +22,7 @@ public class ProfileRowMapper implements RowMapper<Profile> {
         profile.setTdee(rs.getInt("TDEE"));
         profile.setGoalWeight(rs.getFloat("goal_weight"));
         profile.setExpectedWeightChange(rs.getString("expected_weight_change"));
-        profile.setProfileCreatedDate(rs.getDate("profile_created_date").toLocalDate());
+        profile.setProfileCreatedDate(rs.getDate("profile_created_date"));
         return profile;
     }
 }

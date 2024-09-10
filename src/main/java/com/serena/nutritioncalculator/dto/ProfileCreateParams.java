@@ -3,7 +3,7 @@ package com.serena.nutritioncalculator.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -18,5 +18,5 @@ public class ProfileCreateParams {
     private Integer     tdee;
     private Float       goalWeight;
     private String      expectedWeightChange;
-    private LocalDate   profileCreatedDate;
+    private Date        profileCreatedDate;
 }
