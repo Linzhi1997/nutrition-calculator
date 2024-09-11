@@ -8,9 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MenuCreateRequest {
-    @NotNull
-    private Integer userId;
+public class MenuRequest {
     @NotNull
     private MealType mealType;
     @NotNull

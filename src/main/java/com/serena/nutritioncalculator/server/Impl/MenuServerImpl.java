@@ -4,7 +4,7 @@ import com.serena.nutritioncalculator.dao.FoodDao;
 import com.serena.nutritioncalculator.dao.MenuDao;
 import com.serena.nutritioncalculator.dao.ProfileDao;
 import com.serena.nutritioncalculator.dao.UserDao;
-import com.serena.nutritioncalculator.dto.MenuCreateRequest;
+import com.serena.nutritioncalculator.dto.MenuRequest;
 import com.serena.nutritioncalculator.dto.MenuQueryParams;
 import com.serena.nutritioncalculator.model.*;
 import com.serena.nutritioncalculator.server.MenuServer;
@@ -32,29 +32,29 @@ public class MenuServerImpl implements MenuServer {
     FoodDao foodDao;
 
     @Override
-    public Integer createMenu(MenuCreateRequest menuCreateRequest) {
-        User user = userDao.getUserById(menuCreateRequest.getUserId());
+    public Integer createMenu(Integer usersId, MenuRequest menuRequest) {
+        User user = userDao.getUserById(usersId);
         if(user==null){
-            log.warn("此UserId: {}不存在",menuCreateRequest.getUserId());
+            log.warn("此UserId: {}不存在", usersId);
             throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        Profile profile = profileDao.getLastProfileByUserId(menuCreateRequest.getUserId());
+        Profile profile = profileDao.getLastProfileByUserId(usersId);
         if(profile==null){
-            log.warn("此UserId: {} 未創建熱量表",menuCreateRequest.getUserId());
+            log.warn("此UserId: {} 未創建熱量表", usersId);
             throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        Food food = foodDao.getFoodById(menuCreateRequest.getFoodId());
+        Food food = foodDao.getFoodById(menuRequest.getFoodId());
 
         if(food==null){
-            log.warn("此FoodId: {} 不存在",menuCreateRequest.getFoodId());
+            log.warn("此FoodId: {} 不存在", menuRequest.getFoodId());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        if(menuCreateRequest.getExchange()==null){
-            menuCreateRequest.setExchange(1);
+        if(menuRequest.getExchange()==null){
+            menuRequest.setExchange(1);
         }
-        return menuDao.createMenu(menuCreateRequest);
+        return menuDao.createMenu(usersId, menuRequest);
     }
 
     @Override
@@ -67,8 +67,17 @@ public class MenuServerImpl implements MenuServer {
     }
 
     @Override
+    public void updateMenu(Integer menuId, MenuRequest menuRequest) {
+        if(menuId==null){
+            log.warn("MenuId: {} 不存在", menuId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        menuDao.updateMenu(menuId, menuRequest);
+    }
+
+    @Override
     public Menu getMenuById(Integer menuId) {
-        if(getMenuById(menuId)==null){
+        if(menuId==null){
             log.warn("MenuId: {} 不存在", menuId);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
@@ -152,12 +161,6 @@ public class MenuServerImpl implements MenuServer {
         } else if (menuBeginTime != null && menuEndTime != null) {
             menuQueryParams.setMenuBeginTime(menuBeginTime);
             menuQueryParams.setMenuEndTime(menuEndTime);
-        }  else if (menuBeginTime == null && menuEndTime != null)  {
-            log.warn("未輸入起始時間，請重新輸入");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }   else if (menuBeginTime != null && menuEndTime == null)  {
-            log.warn("未輸入結束時間，請重新輸入");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         return menuQueryParams;

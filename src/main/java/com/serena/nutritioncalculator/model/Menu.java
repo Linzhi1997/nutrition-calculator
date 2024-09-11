@@ -14,5 +14,5 @@ public class Menu {
     private MealType mealType;
     private Integer foodId;
     private Integer exchange;
-    private Date    menuCreatedTime;
+    private Date    menuCreatedDate;
 }

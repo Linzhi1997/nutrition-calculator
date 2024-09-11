@@ -16,7 +16,7 @@ public class MenuRowmapper implements RowMapper<Menu> {
         menu.setMealType(MealType.valueOf(rs.getString("meal_type")));
         menu.setFoodId(rs.getInt("food_id"));
         menu.setExchange(rs.getInt("exchange"));
-        menu.setMenuCreatedTime(rs.getTimestamp("menu_created_time"));
+        menu.setMenuCreatedDate(rs.getTimestamp("menu_created_date"));
         return menu;
     }
 }

@@ -12,7 +12,7 @@ public class MenuFood {
     private Integer     userId;
     private MealType    mealType;
     private Integer     exchange;
-    private Date        menuCreatedTime;
+    private Date        menuCreatedDate;
     private String      foodName;
     private Integer     foodCal;
     private Integer     foodProtein;

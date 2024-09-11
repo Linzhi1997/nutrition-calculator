@@ -1,6 +1,6 @@
 package com.serena.nutritioncalculator.controller;
 
-import com.serena.nutritioncalculator.dto.MenuCreateRequest;
+import com.serena.nutritioncalculator.dto.MenuRequest;
 import com.serena.nutritioncalculator.dto.MenuQueryParams;
 import com.serena.nutritioncalculator.model.Menu;
 import com.serena.nutritioncalculator.model.MenuFood;
@@ -24,9 +24,10 @@ public class MenuController {
     MenuServer menuServer;
 
     //創造一筆飲食紀錄
-    @PostMapping("/menus")
-    public ResponseEntity<Menu> createMenu(@RequestBody @Valid MenuCreateRequest menuCreateRequest) {
-        Integer menuId = menuServer.createMenu(menuCreateRequest);
+    @PostMapping("/users/{usersId}/menus")
+    public ResponseEntity<Menu> createMenu(@PathVariable Integer usersId,
+                                           @RequestBody @Valid MenuRequest menuRequest) {
+        Integer menuId = menuServer.createMenu(usersId, menuRequest);
         Menu menu = menuServer.getMenuById(menuId);
         return ResponseEntity.status(HttpStatus.CREATED).body(menu);
     }
@@ -36,6 +37,14 @@ public class MenuController {
         menuServer.deleteMenu(menuId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
+    }
+
+    @PutMapping("/menus/{menuId}")
+    public ResponseEntity<Menu> updateMenu(@PathVariable Integer menuId,
+                                           @RequestBody @Valid MenuRequest menuRequest){
+        menuServer.updateMenu(menuId, menuRequest);
+        Menu menu = menuServer.getMenuById(menuId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(menu);
     }
 
     // 查詢個人飲食紀錄表
@@ -55,9 +64,10 @@ public class MenuController {
         menuQueryParams.setUserId(usersId);
         menuQueryParams.setRecommendCal(recommendCal);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        menuQueryParams.setMenuBeginTime(dateFormat.parse(beginDate));
-        menuQueryParams.setMenuEndTime(dateFormat.parse(endDate));
-
+        if (beginDate != null && endDate != null) {
+            menuQueryParams.setMenuBeginTime(dateFormat.parse(beginDate));
+            menuQueryParams.setMenuEndTime(dateFormat.parse(endDate));
+        }
         // 設定返回值
         List<MenuFood> menuFoodList = menuServer.getMenuFoods(menuQueryParams);
         Page<MenuFood> menuFoodPage = new Page<>();
