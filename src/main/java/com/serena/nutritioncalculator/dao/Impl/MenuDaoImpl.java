@@ -31,7 +31,7 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     public Integer createMenu(Integer usersId, MenuRequest menuRequest) {
-        String sql = "INSERT INTO menu " +
+        String sql = " INSERT INTO menu " +
                 " (user_id,meal_type,food_id,exchange,menu_created_date)" +
                 " VALUES(:userId,:mealType,:foodId,:exchange,:menuCreatedDate)";
 
@@ -87,11 +87,11 @@ public class MenuDaoImpl implements MenuDao {
     public List<MenuFood> getMenuFoods(MenuQueryParams menuQueryParams) {
         // 查詢menu對應的foods
         String sql = "SELECT m.user_id,m.meal_type,m.exchange,m.menu_created_date,f.food_name,f.food_cal,f.food_carbs,f.food_protein,f.food_fat,f.food_location " +
-                "FROM food as f LEFT JOIN menu as m " +
+                " FROM food as f LEFT JOIN menu as m " +
                 " ON m.food_id = f.food_id " +
-                "WHERE 1=1 ";
+                " WHERE 1=1 ";
         Map<String,Object> map = new HashMap<>();
-        sql = addTimeFilter(sql,map,menuQueryParams);
+        sql = addFilter(sql,map,menuQueryParams);
 
         List<MenuFood> menuFoodList = namedParameterJdbcTemplate.query(sql,map,new MenuFoodRowmapper());
 
@@ -101,21 +101,25 @@ public class MenuDaoImpl implements MenuDao {
     public Integer getMenuTotal(MenuQueryParams menuQueryParams){
         String sql = " SELECT count(*) FROM menu as m WHERE 1=1 ";
         Map<String,Object> map = new HashMap<>();
-        sql= addTimeFilter(sql,map,menuQueryParams);
+        sql= addFilter(sql,map,menuQueryParams);
 
         Integer totalResult = namedParameterJdbcTemplate.queryForObject(sql,map,Integer.class);
 
         return totalResult;
     }
 
-    private String addTimeFilter(String sql, Map<String,Object> map, MenuQueryParams menuQueryParams){
-
-        if(menuQueryParams.getUserId()!=null&&menuQueryParams.getMenuBeginTime()!=null&&menuQueryParams.getMenuEndTime()!=null) {
-            sql = sql + " AND m.user_id =:userId AND m.menu_created_date BETWEEN :menuBeginTime AND :menuEndTime;";
+    private String addFilter(String sql, Map<String,Object> map, MenuQueryParams menuQueryParams){
+        // 檢查並附加 user_id 篩選條件
+        if (menuQueryParams.getUserId() != null) {
+            sql += " AND m.user_id = :userId";
+            map.put("userId", menuQueryParams.getUserId());
         }
-        map.put("userId",menuQueryParams.getUserId());
-        map.put("menuBeginTime",menuQueryParams.getMenuBeginTime());
-        map.put("menuEndTime",menuQueryParams.getMenuEndTime());
+        // 加入時間篩選條件
+        if(menuQueryParams.getMenuBeginTime()!=null&&menuQueryParams.getMenuEndTime()!=null) {
+            sql = sql + " AND m.user_id =:userId AND m.menu_created_date BETWEEN :menuBeginTime AND :menuEndTime;";
+            map.put("menuBeginTime",menuQueryParams.getMenuBeginTime());
+            map.put("menuEndTime",menuQueryParams.getMenuEndTime());
+        }
         return sql;
     }
 

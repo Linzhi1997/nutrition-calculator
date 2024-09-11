@@ -4,10 +4,13 @@ import com.serena.nutritioncalculator.dto.MenuRequest;
 import com.serena.nutritioncalculator.dto.MenuQueryParams;
 import com.serena.nutritioncalculator.model.Menu;
 import com.serena.nutritioncalculator.model.MenuFood;
+import com.serena.nutritioncalculator.server.Impl.MenuServerImpl;
 import com.serena.nutritioncalculator.server.MenuServer;
 import com.serena.nutritioncalculator.util.DailyPage;
 import com.serena.nutritioncalculator.util.Page;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,8 @@ public class MenuController {
 
     @Autowired
     MenuServer menuServer;
+
+    private static final Logger log = LoggerFactory.getLogger(MenuServerImpl.class);
 
     //創造一筆飲食紀錄
     @PostMapping("/users/{usersId}/menus")
@@ -63,11 +68,8 @@ public class MenuController {
         MenuQueryParams menuQueryParams = new MenuQueryParams();
         menuQueryParams.setUserId(usersId);
         menuQueryParams.setRecommendCal(recommendCal);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (beginDate != null && endDate != null) {
-            menuQueryParams.setMenuBeginTime(dateFormat.parse(beginDate));
-            menuQueryParams.setMenuEndTime(dateFormat.parse(endDate));
-        }
+        menuQueryParams = setSearchTime(beginDate,endDate,menuQueryParams);
+
         // 設定返回值
         List<MenuFood> menuFoodList = menuServer.getMenuFoods(menuQueryParams);
         Page<MenuFood> menuFoodPage = new Page<>();
@@ -95,9 +97,7 @@ public class MenuController {
         MenuQueryParams menuQueryParams = new MenuQueryParams();
         menuQueryParams.setUserId(usersId);
         menuQueryParams.setRecommendCal(recommendCal);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        menuQueryParams.setMenuBeginTime(dateFormat.parse(beginDate));
-        menuQueryParams.setMenuEndTime(dateFormat.parse(endDate));
+        menuQueryParams = setSearchTime(beginDate,endDate,menuQueryParams);
 
         // 設定返回值
         List<MenuFood> menuFoodList = menuServer.getMenuFoods(menuQueryParams);
@@ -111,5 +111,14 @@ public class MenuController {
         return ResponseEntity.status(HttpStatus.OK).body(dailyPage);
     }
 
+    private MenuQueryParams setSearchTime(String beginDate,String endDate,MenuQueryParams menuQueryParams) throws ParseException {
+
+        if (beginDate != null && endDate != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            menuQueryParams.setMenuBeginTime(dateFormat.parse(beginDate));
+            menuQueryParams.setMenuEndTime(dateFormat.parse(endDate));
+        }
+        return menuQueryParams;
+    }
 
 }
