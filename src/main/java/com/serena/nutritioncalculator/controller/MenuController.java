@@ -1,6 +1,7 @@
 package com.serena.nutritioncalculator.controller;
 
 import com.serena.nutritioncalculator.dto.MenuItem;
+import com.serena.nutritioncalculator.dto.PagingQueryParams;
 import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.model.Menu;
 import com.serena.nutritioncalculator.server.DailyServer;
@@ -13,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -65,8 +64,12 @@ public class MenuController {
                                               ) {
         // TimeQueryParams內設定時間
         TimeQueryParams timeQueryParams  = new TimeQueryParams(beginDate,endDate);
+        // 設定分頁
+        PagingQueryParams pagingQueryParams = new PagingQueryParams();
+        pagingQueryParams.setLimit(limit);
+        pagingQueryParams.setOffset(offset);
         // 設定返回值
-        List<Menu> menuList = menuServer.getMenus(userId,timeQueryParams);
+        List<Menu> menuList = menuServer.getMenus(userId,timeQueryParams, pagingQueryParams);
         Page<Menu> menuPage = new Page<>();
         menuPage.setLimit(limit);
         menuPage.setOffset(offset);

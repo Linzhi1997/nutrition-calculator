@@ -3,6 +3,7 @@ package com.serena.nutritioncalculator.server.Impl;
 import com.serena.nutritioncalculator.dao.*;
 import com.serena.nutritioncalculator.dto.DailyParams;
 import com.serena.nutritioncalculator.dto.DailyCreateRequest;
+import com.serena.nutritioncalculator.dto.PagingQueryParams;
 import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.model.*;
 import com.serena.nutritioncalculator.server.DailyServer;
@@ -58,8 +59,11 @@ public class DailyServerImpl implements DailyServer {
         int dailyCarbs = 0;
         int dailyProtein = 0;
         int dailyFat = 0;
+        PagingQueryParams pagingQueryParams = new PagingQueryParams();
+        pagingQueryParams.setLimit(10);
+        pagingQueryParams.setOffset(0);
         // 每次menu改動時都去Menu撈資料
-        for (Menu menu : menuDao.getMenus(userId,timeQueryParams)) {
+        for (Menu menu : menuDao.getMenus(userId,timeQueryParams, pagingQueryParams)) {
             Food food = foodDao.getFoodById(menu.getFoodId());
             // 檢查該食材是否存在
             if (food == null) {
@@ -87,7 +91,7 @@ public class DailyServerImpl implements DailyServer {
 
         // 執行記錄創建或更新
         int dailyId = 0;
-        List<Daily> todayRecord = dailyDao.getDailyRecords(userId, timeQueryParams);
+        List<Daily> todayRecord = dailyDao.getDailyRecords(userId, timeQueryParams, pagingQueryParams);
         if (todayRecord.size() == 1) {
             dailyId = todayRecord.get(0).getDailyId();
             dailyDao.updateDailyRecordForToday(dailyId, dailyParams);
@@ -101,6 +105,16 @@ public class DailyServerImpl implements DailyServer {
     public Daily getDailyById(Integer dailyId) {
         Daily daily = dailyDao.getDailyById(dailyId);
         return daily;
+    }
+
+    @Override
+    public List<Daily> getDailyRecords(Integer userId, TimeQueryParams timeQueryParams, PagingQueryParams pagingQueryParams) {
+        return dailyDao.getDailyRecords(userId,timeQueryParams, pagingQueryParams);
+    }
+
+    @Override
+    public Integer countDailyRecords(Integer userId, TimeQueryParams timeQueryParams) {
+        return dailyDao.countDailyRecords(userId,timeQueryParams);
     }
 
 }

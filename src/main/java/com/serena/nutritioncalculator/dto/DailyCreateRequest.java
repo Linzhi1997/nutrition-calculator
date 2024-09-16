@@ -8,7 +8,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class DailyCreateRequest {
-
     private Date    beginTime;
     private Integer recommendCal;
 }

@@ -2,6 +2,7 @@ package com.serena.nutritioncalculator.dao.Impl;
 
 import com.serena.nutritioncalculator.dao.*;
 import com.serena.nutritioncalculator.dto.MenuItem;
+import com.serena.nutritioncalculator.dto.PagingQueryParams;
 import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.mapper.MenuRowMapper;
 import com.serena.nutritioncalculator.model.Menu;
@@ -95,12 +96,18 @@ public class MenuDaoImpl implements MenuDao {
     }
 
 
-    public List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams) {
+    public List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams, PagingQueryParams pagingQueryParams) {
         // 查詢 menu + foods
         String sql = buildMenuQuery() +" WHERE 1=1 ";
         Map<String,Object> map = new HashMap<>();
         // 以使用者和時間來搜尋
         sql = addFilterQuery(sql,map,userId, timeQueryParams);
+        // 排序（固定）
+        sql = sql + " ORDER BY last_modified_date DESC ";
+        // 分頁
+        sql = sql + " LIMIT :limit OFFSET :offset ";
+        map.put("limit", pagingQueryParams.getLimit());
+        map.put("offset", pagingQueryParams.getOffset());
         List<Menu> menuList = namedParameterJdbcTemplate.query(sql,map,new MenuRowMapper());
 
         return menuList;

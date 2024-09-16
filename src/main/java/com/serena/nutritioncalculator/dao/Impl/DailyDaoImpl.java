@@ -2,6 +2,7 @@ package com.serena.nutritioncalculator.dao.Impl;
 
 import com.serena.nutritioncalculator.dao.DailyDao;
 import com.serena.nutritioncalculator.dto.DailyParams;
+import com.serena.nutritioncalculator.dto.PagingQueryParams;
 import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.mapper.DailyRowMapper;
 import com.serena.nutritioncalculator.model.Daily;
@@ -67,10 +68,18 @@ public class DailyDaoImpl implements DailyDao {
     }
 
     @Override
-    public List<Daily> getDailyRecords(Integer userId, TimeQueryParams timeQueryParams) {
+    public List<Daily> getDailyRecords(Integer userId, TimeQueryParams timeQueryParams, PagingQueryParams pagingQueryParams) {
         String sql = "SELECT daily_id,user_id,recommend_cal,daily_cal,daily_carbs,daily_protein,daily_fat,achieve_percent,daily_begin_time,daily_last_modified_date FROM daily WHERE 1=1 ";
         Map<String,Object> map = new HashMap<>();
         sql = addFilterQuery(sql,map,userId,timeQueryParams);
+        // 以使用者和時間來搜尋
+        sql = addFilterQuery(sql,map,userId,timeQueryParams);
+        // 排序（固定）
+        sql = sql + " ORDER BY daily_begin_time DESC ";
+        // 分頁
+        sql = sql + " LIMIT :limit OFFSET :offset ";
+        map.put("limit", pagingQueryParams.getLimit());
+        map.put("offset", pagingQueryParams.getOffset());
 
         List<Daily> dailyList = namedParameterJdbcTemplate.query(sql,map,new DailyRowMapper());
         if(dailyList!=null){
@@ -78,6 +87,17 @@ public class DailyDaoImpl implements DailyDao {
         }else {
             return new ArrayList<>();
         }
+    }
+
+    @Override
+    public Integer countDailyRecords(Integer userId, TimeQueryParams timeQueryParams) {
+        String sql = "SELECT count(*) FROM daily WHERE 1=1 ";
+        Map<String,Object> map = new HashMap<>();
+        // 以使用者和時間來搜尋
+        sql = addFilterQuery(sql,map,userId,timeQueryParams);
+
+        Integer totalResult = namedParameterJdbcTemplate.queryForObject(sql,map,Integer.class);
+        return totalResult;
     }
 
     private Map<String, Object> addParamsMap(Map<String, Object> map,DailyParams dailyParams) {

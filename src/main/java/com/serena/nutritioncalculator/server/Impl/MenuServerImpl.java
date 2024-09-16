@@ -1,8 +1,8 @@
 package com.serena.nutritioncalculator.server.Impl;
 
-import com.serena.nutritioncalculator.constant.MealType;
 import com.serena.nutritioncalculator.dao.*;
 import com.serena.nutritioncalculator.dto.MenuItem;
+import com.serena.nutritioncalculator.dto.PagingQueryParams;
 import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.model.*;
 import com.serena.nutritioncalculator.server.MenuServer;
@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.*;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -52,8 +50,8 @@ public class MenuServerImpl implements MenuServer {
     }
 
     @Override
-    public List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams) {
-        return menuDao.getMenus(userId,timeQueryParams);
+    public List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams, PagingQueryParams pagingQueryParams) {
+        return menuDao.getMenus(userId,timeQueryParams, pagingQueryParams);
     }
 
     @Override
