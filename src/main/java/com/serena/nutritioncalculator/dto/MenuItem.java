@@ -8,10 +8,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MenuRequest {
+public class MenuItem {
     @NotNull
-    private MealType mealType;
+    private MealType    mealType;
     @NotNull
-    private Integer foodId;
-    private Integer exchange;
+    private Integer     foodId;
+    @NotNull
+    private Integer     exchange;
 }

@@ -1,19 +1,16 @@
 package com.serena.nutritioncalculator.server;
 
-import com.serena.nutritioncalculator.dto.MenuRequest;
-import com.serena.nutritioncalculator.dto.MenuQueryParams;
-import com.serena.nutritioncalculator.model.DailyIntake;
+import com.serena.nutritioncalculator.dto.MenuItem;
+import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.model.Menu;
-import com.serena.nutritioncalculator.model.MenuFood;
 
 import java.util.List;
 
 public interface MenuServer {
-    Integer createMenu(Integer usersId, MenuRequest menuRequest);
-    void deleteMenu(Integer menuId);
-    void updateMenu(Integer menuId, MenuRequest menuRequest);
+    Integer createMenu(Integer userId,MenuItem menuItem);
     Menu getMenuById(Integer menuId);
-    List<MenuFood> getMenuFoods(MenuQueryParams menuQueryParams);
-    Integer getMenuTotal(MenuQueryParams menuQueryParams);
-    DailyIntake getDailyIntake(MenuQueryParams menuQueryParams);
+    List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams);
+    Integer countMenu(Integer userId, TimeQueryParams timeQueryParams);
+    void updateMenu(Integer menuId, MenuItem menuItem);
+    void deleteMenu(Integer menuId);
 }

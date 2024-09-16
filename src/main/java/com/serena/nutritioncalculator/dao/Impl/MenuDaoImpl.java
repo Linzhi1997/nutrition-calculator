@@ -1,12 +1,10 @@
 package com.serena.nutritioncalculator.dao.Impl;
 
 import com.serena.nutritioncalculator.dao.*;
-import com.serena.nutritioncalculator.dto.MenuRequest;
-import com.serena.nutritioncalculator.dto.MenuQueryParams;
-import com.serena.nutritioncalculator.mapper.MenuFoodRowmapper;
-import com.serena.nutritioncalculator.mapper.MenuRowmapper;
+import com.serena.nutritioncalculator.dto.MenuItem;
+import com.serena.nutritioncalculator.dto.TimeQueryParams;
+import com.serena.nutritioncalculator.mapper.MenuRowMapper;
 import com.serena.nutritioncalculator.model.Menu;
-import com.serena.nutritioncalculator.model.MenuFood;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,10 +12,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class MenuDaoImpl implements MenuDao {
@@ -30,21 +25,19 @@ public class MenuDaoImpl implements MenuDao {
     UserDao userDao;
 
     @Override
-    public Integer createMenu(Integer usersId, MenuRequest menuRequest) {
-        String sql = " INSERT INTO menu " +
-                " (user_id,meal_type,food_id,exchange,menu_created_date)" +
-                " VALUES(:userId,:mealType,:foodId,:exchange,:menuCreatedDate)";
-
+    public Integer createMenu(Integer userId,MenuItem menuItem) {
+        String sql = " INSERT INTO menu (user_id,meal_type,food_id,exchange,last_modified_date)" +
+                    " VALUES(:userId,:mealType,:foodId,:exchange,:lastModifiedDate)";
         Map<String, Object> map = new HashMap<>();
-        map.put("userId", usersId);
-        map.put("mealType", menuRequest.getMealType().toString());
-        map.put("foodId", menuRequest.getFoodId());
-        map.put("exchange", menuRequest.getExchange());
-        map.put("menuCreatedDate", new Date());
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
-        int menuId = keyHolder.getKey().intValue();
+        map.put("userId",userId);
+        map.put("mealType",  menuItem.getMealType().toString());
+        map.put("foodId",  menuItem.getFoodId());
+        map.put("exchange",  menuItem.getExchange());
+        map.put("lastModifiedDate", new Date());
 
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        namedParameterJdbcTemplate.update(sql,new MapSqlParameterSource(map), keyHolder);
+        int menuId = keyHolder.getKey().intValue();
         return menuId;
     }
 
@@ -57,26 +50,43 @@ public class MenuDaoImpl implements MenuDao {
     }
 
     @Override
-    public void updateMenu(Integer menuId, MenuRequest menuRequest) {
-        String sql = " UPDATE menu " +
-                "SET meal_type=:mealType, food_id=:foodId,exchange=:exchange,menu_created_date=:menuCreatedDate " +
-                "WHERE menu_id = :menuId ";
+    public void updateMenu(Integer menuId, MenuItem menuItem) {
+        String sql = "UPDATE menu SET ";
         Map<String, Object> map = new HashMap<>();
+        List<String> updateFields = new ArrayList<>();
+
+        // 選擇性添加更新的字段
+        if (menuItem.getMealType() != null) {
+            updateFields.add("meal_type = :mealType");
+            map.put("mealType", menuItem.getMealType().toString());
+        }
+        if (menuItem.getFoodId() != null) {
+            updateFields.add("food_id = :foodId");
+            map.put("foodId", menuItem.getFoodId());
+        }
+        if (menuItem.getExchange() != null) {
+            updateFields.add("exchange = :exchange");
+            map.put("exchange", menuItem.getExchange());
+        }
+
+        // 添加最後修改時間
+        updateFields.add("last_modified_date = :lastModifiedDate");
+        map.put("lastModifiedDate", new Date());
+
+        // 最終SQL
+        sql += String.join(", ", updateFields);  // 將字段用逗號連接起來
+        sql += " WHERE menu_id = :menuId";
         map.put("menuId", menuId);
-        map.put("mealType",  menuRequest.getMealType().toString());
-        map.put("foodId",  menuRequest.getFoodId());
-        map.put("exchange",  menuRequest.getExchange());
-        map.put("menuCreatedDate",new Date());
 
         namedParameterJdbcTemplate.update(sql, map);
     }
 
     public Menu getMenuById(Integer menuId) {
-        String sql = "SELECT menu_id,user_id,meal_type,food_id,exchange,menu_created_date " +
-                " FROM menu WHERE menu_id = :menuId ";
+        // 查詢 menu + foods
+        String sql = buildMenuQuery() + " WHERE menu_id = :menuId ";
         Map<String,Object> map = new HashMap<>();
         map.put("menuId",menuId);
-        List<Menu> menuList = namedParameterJdbcTemplate.query(sql,map,new MenuRowmapper());
+        List<Menu> menuList = namedParameterJdbcTemplate.query(sql,map,new MenuRowMapper());
         if(menuList.size()>0){
             return menuList.get(0);
         }else {
@@ -84,41 +94,54 @@ public class MenuDaoImpl implements MenuDao {
         }
     }
 
-    public List<MenuFood> getMenuFoods(MenuQueryParams menuQueryParams) {
-        // 查詢menu對應的foods
-        String sql = "SELECT m.user_id,m.meal_type,m.exchange,m.menu_created_date,f.food_name,f.food_cal,f.food_carbs,f.food_protein,f.food_fat,f.food_location " +
-                " FROM food as f LEFT JOIN menu as m " +
-                " ON m.food_id = f.food_id " +
-                " WHERE 1=1 ";
+
+    public List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams) {
+        // 查詢 menu + foods
+        String sql = buildMenuQuery() +" WHERE 1=1 ";
         Map<String,Object> map = new HashMap<>();
-        sql = addFilter(sql,map,menuQueryParams);
+        // 以使用者和時間來搜尋
+        sql = addFilterQuery(sql,map,userId, timeQueryParams);
+        List<Menu> menuList = namedParameterJdbcTemplate.query(sql,map,new MenuRowMapper());
 
-        List<MenuFood> menuFoodList = namedParameterJdbcTemplate.query(sql,map,new MenuFoodRowmapper());
-
-        return menuFoodList;
+        return menuList;
     }
 
-    public Integer getMenuTotal(MenuQueryParams menuQueryParams){
+    public Integer countMenu(Integer userId, TimeQueryParams timeQueryParams){
         String sql = " SELECT count(*) FROM menu as m WHERE 1=1 ";
         Map<String,Object> map = new HashMap<>();
-        sql= addFilter(sql,map,menuQueryParams);
+        // 以使用者和時間來搜尋
+        sql= addFilterQuery(sql,map,userId, timeQueryParams);
 
         Integer totalResult = namedParameterJdbcTemplate.queryForObject(sql,map,Integer.class);
 
         return totalResult;
     }
 
-    private String addFilter(String sql, Map<String,Object> map, MenuQueryParams menuQueryParams){
-        // 檢查並附加 user_id 篩選條件
-        if (menuQueryParams.getUserId() != null) {
-            sql += " AND m.user_id = :userId";
-            map.put("userId", menuQueryParams.getUserId());
+    private String buildMenuQuery() {
+        return "SELECT m.menu_id, m.user_id, m.meal_type, m.food_id, m.exchange, m.last_modified_date, " +
+                "f.food_name, " +
+                "(f.food_cal * m.exchange) AS food_cal, " +
+                "(f.food_carbs * m.exchange) AS food_carbs, " +
+                "(f.food_protein * m.exchange) AS food_protein, " +
+                "(f.food_fat * m.exchange) AS food_fat, f.food_location " +
+                "FROM menu AS m LEFT JOIN food AS f " +
+                "ON m.food_id = f.food_id ";
+    }
+
+    private String addFilterQuery(String sql, Map<String, Object> map, Integer userId, TimeQueryParams timeQueryParams) {
+        if (userId != null) {
+            sql += " AND m.user_id = :userId ";
+            map.put("userId", userId);
         }
-        // 加入時間篩選條件
-        if(menuQueryParams.getMenuBeginTime()!=null&&menuQueryParams.getMenuEndTime()!=null) {
-            sql = sql + " AND m.user_id =:userId AND m.menu_created_date BETWEEN :menuBeginTime AND :menuEndTime;";
-            map.put("menuBeginTime",menuQueryParams.getMenuBeginTime());
-            map.put("menuEndTime",menuQueryParams.getMenuEndTime());
+        if (timeQueryParams != null) {
+            if (timeQueryParams.getBeginTime() != null) {
+                sql += " AND m.last_modified_date >= :beginTime ";
+                map.put("beginTime", timeQueryParams.getBeginTime());
+            }
+            if (timeQueryParams.getEndTime() != null) {
+                sql += " AND m.last_modified_date <= :endTime ";
+                map.put("endTime", timeQueryParams.getEndTime());
+            }
         }
         return sql;
     }

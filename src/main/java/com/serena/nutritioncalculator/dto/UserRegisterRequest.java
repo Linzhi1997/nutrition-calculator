@@ -15,12 +15,12 @@ import java.time.LocalDate;
 @Setter
 public class UserRegisterRequest {
     @NotEmpty
-    private String  userName;
+    private String      userName;
     @NotEmpty
     @Email
-    private String  email;
+    private String      email;
     @NotEmpty
-    private String  password;
+    private String      password;
     @NotNull
     private SexCategory sex;
     @NotNull

@@ -3,7 +3,7 @@ package com.serena.nutritioncalculator.dao.Impl;
 
 import com.serena.nutritioncalculator.dao.FoodDao;
 import com.serena.nutritioncalculator.dto.FoodQueryParams;
-import com.serena.nutritioncalculator.mapper.FoodRowmapper;
+import com.serena.nutritioncalculator.mapper.FoodRowMapper;
 import com.serena.nutritioncalculator.model.Food;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class FoodDaoImpl implements FoodDao {
                 " FROM food WHERE food_id=:foodId ";
         Map<String,Object> map = new HashMap<>();
         map.put("foodId",foodId);
-        List<Food> foodList = namedParameterJdbcTemplate.query(sql,map,new FoodRowmapper());
+        List<Food> foodList = namedParameterJdbcTemplate.query(sql,map,new FoodRowMapper());
         if(foodList.size()>0){
             return foodList.get(0);
         }else {
@@ -49,7 +49,7 @@ public class FoodDaoImpl implements FoodDao {
         map.put("limit",foodQueryParams.getLimit());
         map.put("offset",foodQueryParams.getOffset());
 
-        List<Food> foodList = namedParameterJdbcTemplate.query(sql,map,new FoodRowmapper());
+        List<Food> foodList = namedParameterJdbcTemplate.query(sql,map,new FoodRowMapper());
 
         return foodList;
     }

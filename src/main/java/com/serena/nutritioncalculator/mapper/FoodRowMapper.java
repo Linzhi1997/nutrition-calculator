@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FoodRowmapper implements RowMapper<Food> {
+public class FoodRowMapper implements RowMapper<Food> {
 
     @Override
     public Food mapRow(ResultSet rs, int rowNum) throws SQLException {

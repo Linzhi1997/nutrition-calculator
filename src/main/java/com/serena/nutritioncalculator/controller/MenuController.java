@@ -1,23 +1,21 @@
 package com.serena.nutritioncalculator.controller;
 
-import com.serena.nutritioncalculator.dto.MenuRequest;
-import com.serena.nutritioncalculator.dto.MenuQueryParams;
+import com.serena.nutritioncalculator.dto.MenuItem;
+import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.model.Menu;
-import com.serena.nutritioncalculator.model.MenuFood;
-import com.serena.nutritioncalculator.server.Impl.MenuServerImpl;
+import com.serena.nutritioncalculator.server.DailyServer;
 import com.serena.nutritioncalculator.server.MenuServer;
-import com.serena.nutritioncalculator.util.DailyPage;
 import com.serena.nutritioncalculator.util.Page;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -25,100 +23,57 @@ public class MenuController {
 
     @Autowired
     MenuServer menuServer;
+    @Autowired
+    DailyServer dailyServer;
 
-    private static final Logger log = LoggerFactory.getLogger(MenuServerImpl.class);
-
-    //創造一筆飲食紀錄
-    @PostMapping("/users/{usersId}/menus")
-    public ResponseEntity<Menu> createMenu(@PathVariable Integer usersId,
-                                           @RequestBody @Valid MenuRequest menuRequest) {
-        Integer menuId = menuServer.createMenu(usersId, menuRequest);
+    // 創建一筆飲食紀錄
+    @PostMapping("/users/{userId}/menus")
+    public ResponseEntity<Menu> createMenu(@PathVariable Integer userId,
+                                           @RequestBody @Valid MenuItem menuItem){
+        Integer menuId = menuServer.createMenu(userId, menuItem);
         Menu menu = menuServer.getMenuById(menuId);
         return ResponseEntity.status(HttpStatus.CREATED).body(menu);
     }
 
-    @DeleteMapping("/menus/{menuId}")
-    public ResponseEntity deleteMenu(@PathVariable Integer menuId){
-        menuServer.deleteMenu(menuId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
-    }
-
+    // 更新一筆飲食紀錄
     @PutMapping("/menus/{menuId}")
     public ResponseEntity<Menu> updateMenu(@PathVariable Integer menuId,
-                                           @RequestBody @Valid MenuRequest menuRequest){
-        menuServer.updateMenu(menuId, menuRequest);
+                                           @RequestBody MenuItem menuItem){
+        menuServer.updateMenu(menuId, menuItem);
         Menu menu = menuServer.getMenuById(menuId);
         return ResponseEntity.status(HttpStatus.CREATED).body(menu);
     }
 
-    // 查詢個人飲食紀錄表
-    @GetMapping("/users/{usersId}/menus")
-    public ResponseEntity<Page<MenuFood>> getMenus(@PathVariable Integer usersId,
-                                                  // 搜尋區間
-                                                  @RequestParam (required = false)  String beginDate,
-                                                  @RequestParam (required = false)  String endDate,
-                                                  // 使用者自主設定熱量
-                                                  @RequestParam(required = false)  Integer recommendCal,
-                                                  // 分頁
-                                                  @RequestParam(defaultValue = "10") Integer limit,
-                                                  @RequestParam(defaultValue = "0" ) Integer offset
-                                                  ) throws ParseException {
-        // 傳遞參數
-        MenuQueryParams menuQueryParams = new MenuQueryParams();
-        menuQueryParams.setUserId(usersId);
-        menuQueryParams.setRecommendCal(recommendCal);
-        menuQueryParams = setSearchTime(beginDate,endDate,menuQueryParams);
-
-        // 設定返回值
-        List<MenuFood> menuFoodList = menuServer.getMenuFoods(menuQueryParams);
-        Page<MenuFood> menuFoodPage = new Page<>();
-        menuFoodPage.setLimit(limit);
-        menuFoodPage.setOffset(offset);
-        menuFoodPage.setTotal(menuServer.getMenuTotal(menuQueryParams));
-        menuFoodPage.setResultsList(menuFoodList);
-
-        return ResponseEntity.status(HttpStatus.OK).body(menuFoodPage);
+    // 刪除一筆飲食紀錄
+    @DeleteMapping("/menus/{menuId}")
+    public ResponseEntity<Menu> deleteMenu(@PathVariable Integer menuId){
+        menuServer.deleteMenu(menuId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    // 查詢個人飲食紀錄表(含每日總表)
-    @GetMapping("/users/{usersId}/menus/daily")
-    public ResponseEntity<DailyPage<MenuFood>> getDailyRecord(@PathVariable Integer usersId,
-                                                              // 搜尋區間
-                                                              @RequestParam (required = false)  String beginDate,
-                                                              @RequestParam (required = false)  String endDate,
-                                                              // 使用者自主設定熱量
-                                                              @RequestParam(required = false)  Integer recommendCal,
-                                                              // 分頁
-                                                              @RequestParam(defaultValue = "10") Integer limit,
-                                                              @RequestParam(defaultValue = "0" ) Integer offset
-                                                             ) throws ParseException {
-        // 傳遞參數
-        MenuQueryParams menuQueryParams = new MenuQueryParams();
-        menuQueryParams.setUserId(usersId);
-        menuQueryParams.setRecommendCal(recommendCal);
-        menuQueryParams = setSearchTime(beginDate,endDate,menuQueryParams);
-
+    // 查詢個人飲食菜單 (預設為全部)
+    @GetMapping("/users/{userId}/menus")
+    public ResponseEntity<Page<Menu>> getMenus(@PathVariable Integer userId,
+                                               // 搜尋區間
+                                               @RequestParam (required = false)
+                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")  Date beginDate,
+                                               @RequestParam (required = false)
+                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")  Date endDate,
+                                               // 分頁
+                                               @RequestParam(defaultValue = "10") Integer limit,
+                                               @RequestParam(defaultValue = "0" ) Integer offset
+                                              ) {
+        // TimeQueryParams內設定時間
+        TimeQueryParams timeQueryParams  = new TimeQueryParams(beginDate,endDate);
         // 設定返回值
-        List<MenuFood> menuFoodList = menuServer.getMenuFoods(menuQueryParams);
-        DailyPage<MenuFood> dailyPage = new DailyPage<>();
-        dailyPage.setLimit(limit);
-        dailyPage.setOffset(offset);
-        dailyPage.setTotal(menuServer.getMenuTotal(menuQueryParams));
-        dailyPage.setDailyIntake(menuServer.getDailyIntake(menuQueryParams));
-        dailyPage.setResultsList(menuFoodList);
+        List<Menu> menuList = menuServer.getMenus(userId,timeQueryParams);
+        Page<Menu> menuPage = new Page<>();
+        menuPage.setLimit(limit);
+        menuPage.setOffset(offset);
+        menuPage.setTotal(menuServer.countMenu(userId,timeQueryParams));
+        menuPage.setResultsList(menuList);
 
-        return ResponseEntity.status(HttpStatus.OK).body(dailyPage);
-    }
-
-    private MenuQueryParams setSearchTime(String beginDate,String endDate,MenuQueryParams menuQueryParams) throws ParseException {
-
-        if (beginDate != null && endDate != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            menuQueryParams.setMenuBeginTime(dateFormat.parse(beginDate));
-            menuQueryParams.setMenuEndTime(dateFormat.parse(endDate));
-        }
-        return menuQueryParams;
+        return ResponseEntity.status(HttpStatus.OK).body(menuPage);
     }
 
 }

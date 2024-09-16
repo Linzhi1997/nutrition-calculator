@@ -1,11 +1,9 @@
 package com.serena.nutritioncalculator.server.Impl;
 
-import com.serena.nutritioncalculator.dao.FoodDao;
-import com.serena.nutritioncalculator.dao.MenuDao;
-import com.serena.nutritioncalculator.dao.ProfileDao;
-import com.serena.nutritioncalculator.dao.UserDao;
-import com.serena.nutritioncalculator.dto.MenuRequest;
-import com.serena.nutritioncalculator.dto.MenuQueryParams;
+import com.serena.nutritioncalculator.constant.MealType;
+import com.serena.nutritioncalculator.dao.*;
+import com.serena.nutritioncalculator.dto.MenuItem;
+import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.model.*;
 import com.serena.nutritioncalculator.server.MenuServer;
 import org.slf4j.Logger;
@@ -30,31 +28,46 @@ public class MenuServerImpl implements MenuServer {
     MenuDao menuDao;
     @Autowired
     FoodDao foodDao;
+    @Autowired
+    DailyDao dailyDao;
 
     @Override
-    public Integer createMenu(Integer usersId, MenuRequest menuRequest) {
-        User user = userDao.getUserById(usersId);
-        if(user==null){
-            log.warn("此UserId: {}不存在", usersId);
-            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+    public Integer createMenu(Integer userId,MenuItem menuItem) {
 
-        Profile profile = profileDao.getLastProfileByUserId(usersId);
-        if(profile==null){
-            log.warn("此UserId: {} 未創建熱量表", usersId);
-            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
-        Food food = foodDao.getFoodById(menuRequest.getFoodId());
-
-        if(food==null){
-            log.warn("此FoodId: {} 不存在", menuRequest.getFoodId());
+        if(foodDao.getFoodById(menuItem.getFoodId())==null){
+            log.warn("food:{} 不存在於資料庫",menuItem.getFoodId());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        if(menuRequest.getExchange()==null){
-            menuRequest.setExchange(1);
+
+        return menuDao.createMenu(userId,menuItem);
+    }
+
+    @Override
+    public Menu getMenuById(Integer menuId) {
+        if(menuId==null){
+            log.warn("menu: {} 不存在", menuId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        return menuDao.createMenu(usersId, menuRequest);
+        return menuDao.getMenuById(menuId);
+    }
+
+    @Override
+    public List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams) {
+        return menuDao.getMenus(userId,timeQueryParams);
+    }
+
+    @Override
+    public Integer countMenu(Integer userId, TimeQueryParams timeQueryParams) {
+        return menuDao.countMenu(userId,timeQueryParams);
+    }
+
+    @Override
+    public void updateMenu(Integer menuId, MenuItem menuItem) {
+        if(menuId==null){
+            log.warn("menu: {} 不存在", menuId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        menuDao.updateMenu(menuId, menuItem);
     }
 
     @Override
@@ -64,115 +77,6 @@ public class MenuServerImpl implements MenuServer {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         menuDao.deleteMenu(menuId);
-    }
-
-    @Override
-    public void updateMenu(Integer menuId, MenuRequest menuRequest) {
-        if(menuId==null){
-            log.warn("MenuId: {} 不存在", menuId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-        menuDao.updateMenu(menuId, menuRequest);
-    }
-
-    @Override
-    public Menu getMenuById(Integer menuId) {
-        if(menuId==null){
-            log.warn("MenuId: {} 不存在", menuId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-        return menuDao.getMenuById(menuId);
-    }
-
-    @Override
-    public List<MenuFood> getMenuFoods(MenuQueryParams menuQueryParams) {
-        menuQueryParams = setTime(menuQueryParams);
-        return menuDao.getMenuFoods(menuQueryParams);
-    }
-
-    @Override
-    public Integer getMenuTotal(MenuQueryParams menuQueryParams) {
-        menuQueryParams = setTime(menuQueryParams);
-        return menuDao.getMenuTotal(menuQueryParams);
-    }
-
-    @Override
-    public DailyIntake getDailyIntake(MenuQueryParams menuQueryParams) {
-        // 設定時間為自設或預設 且<24h
-        menuQueryParams = setTime(menuQueryParams);
-        setDailyTimeInADay(menuQueryParams);
-        List<MenuFood> menuFoodList = menuDao.getMenuFoods(menuQueryParams);
-        // 計算一日攝取總熱量及三大營養素
-        int dailyCal = 0;
-        int dailyCarbs = 0;
-        int dailyProtein = 0;
-        int dailyFat = 0;
-
-        for (MenuFood menuFood:menuFoodList){
-            dailyCal += menuFood.getExchange() * menuFood.getFoodCal();
-            dailyCarbs += menuFood.getExchange() * menuFood.getFoodCarbs();
-            dailyProtein += menuFood.getExchange() * menuFood.getFoodProtein();
-            dailyFat += menuFood.getExchange() * menuFood.getFoodFat();
-        }
-
-        int recommendCal =setRecommendCal(menuQueryParams);
-        DailyIntake dailyIntake = new DailyIntake();
-        dailyIntake.setUserId(menuQueryParams.getUserId());
-        dailyIntake.setRecommendCal(recommendCal);
-        dailyIntake.setDailyCal(dailyCal);
-        dailyIntake.setDailyCarbs(dailyCarbs);
-        dailyIntake.setDailyProtein(dailyProtein);
-        dailyIntake.setDailyFat(dailyFat);
-        String achievePercent = String.format("%.2f%%", (dailyCal * 100.0 / recommendCal));
-        dailyIntake.setAchievePercent(achievePercent);
-
-        return dailyIntake;
-    }
-
-    private Integer setRecommendCal(MenuQueryParams menuQueryParams){
-        // 建議熱量設為BMR或自設值
-        int userId = menuQueryParams.getUserId();
-        Integer recommendCal = menuQueryParams.getRecommendCal();
-        if (recommendCal == null) {
-            recommendCal = Math.round(profileDao.getLastProfileByUserId(userId).getBmr()/100)*100; //
-        }
-        return recommendCal;
-    }
-
-    // 預設查詢時間為當日 或 自主設定
-    private MenuQueryParams setTime(MenuQueryParams menuQueryParams){
-        Date menuBeginTime = menuQueryParams.getMenuBeginTime();
-        Date menuEndTime = menuQueryParams.getMenuEndTime();
-
-        if ((menuBeginTime == null || menuEndTime == null)){
-            LocalDate today = LocalDate.now();
-            LocalDateTime beginOfDay = today.atTime(LocalTime.MIN); // 當天的 00:00:00
-            LocalDateTime endOfDay = today.atTime(LocalTime.MAX);   // 當天的 23:59:59
-
-            // 轉換 LocalDateTime -> Date
-            Date beginDate = Date.from(beginOfDay.atZone(ZoneId.systemDefault()).toInstant());
-            Date endDate = Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
-
-            menuQueryParams.setMenuBeginTime(beginDate);
-            menuQueryParams.setMenuEndTime(endDate);
-        } else if (menuBeginTime.after(menuEndTime) == true) {
-            log.warn("起始時間晚於結束時間，請重新輸入");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } else if (menuBeginTime != null && menuEndTime != null) {
-            menuQueryParams.setMenuBeginTime(menuBeginTime);
-            menuQueryParams.setMenuEndTime(menuEndTime);
-        }
-
-        return menuQueryParams;
-    }
-
-    // 設定時間需<24h
-    private void setDailyTimeInADay(MenuQueryParams menuQueryParams){
-        Duration duration = Duration.between(menuQueryParams.getMenuBeginTime().toInstant(),menuQueryParams.getMenuEndTime().toInstant());
-        if(duration.toHours()>=24){
-            log.warn("時間區間大於24小時，請重新輸入");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
     }
 
 }
