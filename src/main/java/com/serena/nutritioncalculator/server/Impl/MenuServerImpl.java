@@ -36,6 +36,10 @@ public class MenuServerImpl implements MenuServer {
             log.warn("food:{} 不存在於資料庫",menuItem.getFoodId());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+        if (profileDao.getLastProfileByUserId(userId)==null){
+            log.warn("user:{} 未建立基本資料",userId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
 
         return menuDao.createMenu(userId,menuItem);
     }

@@ -55,7 +55,7 @@ class MenuControllerTest {
 
         // 創建Http request
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/users/2/menus")
+                .post("/users/{userId}/menus",2)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json);
         // 執行Http request
@@ -66,7 +66,7 @@ class MenuControllerTest {
                 .andExpect(jsonPath("$.mealType",equalTo("早餐")))
                 .andExpect(jsonPath("$.foodId",equalTo(1)))
                 .andExpect(jsonPath("$.exchange",equalTo(2)))
-                .andExpect(jsonPath("$.menuCreatedDate",notNullValue()));
+                .andExpect(jsonPath("$.lastModifiedDate",notNullValue()));
 
     }
 
@@ -81,19 +81,18 @@ class MenuControllerTest {
 
         // 創建Http request
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/users/1/menus")
+                .post("/users/{userId}/menus",1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json);
         // 執行Http request
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isBadRequest());
-
     }
 
     @Test
     public void get_menu_success() throws Exception{
 
-        String beginTime = "2024-09-11 08:00:01";
+        String beginTime = "2024-09-11 08:00:00";
         String endTime = "2024-09-12 08:00:00";
         Integer recommendCal = 1700;
 
@@ -110,13 +109,12 @@ class MenuControllerTest {
         mockMvc.perform(requestBuilder)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultsList.menuId",notNullValue()))
-                .andExpect(jsonPath("$.resultsList.userId", notNullValue()))
-                .andExpect(jsonPath("$.resultsList.mealType",notNullValue()))
-                .andExpect(jsonPath("$.resultsList.foodId",notNullValue()))
-                .andExpect(jsonPath("$.resultsList.exchange",notNullValue()))
-                .andExpect(jsonPath("$.resultsList.menuCreatedDate",notNullValue()));
-
+                .andExpect(jsonPath("$.resultsList[0].menuId",notNullValue()))
+                .andExpect(jsonPath("$.resultsList[0].userId", equalTo(2)))
+                .andExpect(jsonPath("$.resultsList[0].mealType",notNullValue()))
+                .andExpect(jsonPath("$.resultsList[0].foodId",notNullValue()))
+                .andExpect(jsonPath("$.resultsList[0].exchange",notNullValue()))
+                .andExpect(jsonPath("$.resultsList[0].lastModifiedDate",notNullValue()));
     }
 
 }

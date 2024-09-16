@@ -44,5 +44,20 @@ CREATE TABLE IF NOT EXISTS menu
     meal_type           VARCHAR(64) NOT NULL ,
     food_id             INT,
     exchange            INT         DEFAULT (1),
-    menu_created_date   TIMESTAMP   NOT NULL
+    last_modified_date  TIMESTAMP   NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS daily
+(
+    daily_id                    INT         PRIMARY KEY     AUTO_INCREMENT      NOT NULL ,
+    user_id                     INT         NOT NULL ,
+    recommend_cal               INT         NOT NULL ,
+    daily_cal                   INT         DEFAULT (0) ,
+    daily_carbs                 INT         DEFAULT (0) ,
+    daily_protein               INT         DEFAULT (0) ,
+    daily_fat                   INT         DEFAULT (0) ,
+
+    achieve_percent             VARCHAR(4)  NOT NULL,
+    daily_begin_time            TIMESTAMP   NOT NULL ,
+    daily_last_modified_date    TIMESTAMP   NOT NULL
 );
