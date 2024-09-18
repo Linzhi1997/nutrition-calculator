@@ -66,7 +66,13 @@ class MenuControllerTest {
                 .andExpect(jsonPath("$.mealType",equalTo("早餐")))
                 .andExpect(jsonPath("$.foodId",equalTo(1)))
                 .andExpect(jsonPath("$.exchange",equalTo(2)))
-                .andExpect(jsonPath("$.lastModifiedDate",notNullValue()));
+                .andExpect(jsonPath("$.lastModifiedDate",notNullValue()))
+                .andExpect(jsonPath("$.foodName",notNullValue()))
+                .andExpect(jsonPath("$.foodCal",notNullValue()))
+                .andExpect(jsonPath("$.foodCarbs",notNullValue()))
+                .andExpect(jsonPath("$.foodProtein",notNullValue()))
+                .andExpect(jsonPath("$.foodFat",notNullValue()))
+                .andExpect(jsonPath("$.foodLocation",notNullValue()));
 
     }
 
@@ -117,4 +123,139 @@ class MenuControllerTest {
                 .andExpect(jsonPath("$.resultsList[0].lastModifiedDate",notNullValue()));
     }
 
+    @Test
+    public void get_invalidTimeFormat() throws Exception{
+
+        String beginTime = "2024-09-11@08:00:00";
+        String endTime = "2024-09-12@08:00:00";
+        Integer recommendCal = 1700;
+
+        // 創建Http request
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get("/users/{userId}/menus",2)
+                .param("beginDate", beginTime)
+                .param("endDate", endTime)
+                .param("recommendCal", recommendCal.toString())
+                .param("limit", "10")
+                .param("offset", "0");
+
+        // 執行Http request
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void get_invalidTimeDuration() throws Exception{
+
+        String beginTime = "3000-09-11 08:00:00";
+        String endTime = "3000-09-12 08:00:00";
+        Integer recommendCal = 1700;
+
+        // 創建Http request
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get("/users/{userId}/menus",2)
+                .param("beginDate", beginTime)
+                .param("endDate", endTime)
+                .param("recommendCal", recommendCal.toString())
+                .param("limit", "10")
+                .param("offset", "0");
+
+        // 執行Http request
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void delete_menu_success() throws Exception{
+        // 創建Http request
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .delete("/menus/{menuId}",1);
+
+        // 執行Http request
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void update_menu_success() throws Exception{
+        MenuItem menuItem = new MenuItem();
+        menuItem.setFoodId(7);
+        menuItem.setMealType(MealType.B);
+        menuItem.setExchange(1);
+
+        String json = objectMapper.writeValueAsString(menuItem);
+        // 創建Http request
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .put("/menus/{menuId}",2)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        // 執行Http request
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.menuId",equalTo(2)))
+                .andExpect(jsonPath("$.userId",equalTo(2)))
+                .andExpect(jsonPath("$.exchange",equalTo(1)))
+                .andExpect(jsonPath("$.mealType",equalTo("早餐")))
+                .andExpect(jsonPath("$.lastModifiedDate",notNullValue()))
+                .andExpect(jsonPath("$.foodId",equalTo(7)))
+                .andExpect(jsonPath("$.foodName",notNullValue()))
+                .andExpect(jsonPath("$.foodCal",notNullValue()))
+                .andExpect(jsonPath("$.foodCarbs",notNullValue()))
+                .andExpect(jsonPath("$.foodProtein",notNullValue()))
+                .andExpect(jsonPath("$.foodFat",notNullValue()))
+                .andExpect(jsonPath("$.foodLocation",notNullValue()));
+    }
+
+    @Test
+    public void update_success_oneArguments() throws Exception{
+        MenuItem menuItem = new MenuItem();
+        menuItem.setFoodId(11);
+
+        String json = objectMapper.writeValueAsString(menuItem);
+        // 創建Http request
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .put("/menus/{menuId}",2)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        // 執行Http request
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.menuId",equalTo(2)))
+                .andExpect(jsonPath("$.userId",equalTo(2)))
+                .andExpect(jsonPath("$.exchange",equalTo(1)))
+                .andExpect(jsonPath("$.mealType",equalTo("早點")))
+                .andExpect(jsonPath("$.lastModifiedDate",notNullValue()))
+                .andExpect(jsonPath("$.foodId",equalTo(11)))
+                .andExpect(jsonPath("$.foodName",notNullValue()))
+                .andExpect(jsonPath("$.foodCal",notNullValue()))
+                .andExpect(jsonPath("$.foodCarbs",notNullValue()))
+                .andExpect(jsonPath("$.foodProtein",notNullValue()))
+                .andExpect(jsonPath("$.foodFat",notNullValue()))
+                .andExpect(jsonPath("$.foodLocation",notNullValue()));
+    }
+
+    @Test
+    public void update_foodNotExist() throws Exception{
+        MenuItem menuItem = new MenuItem();
+        menuItem.setFoodId(1000);
+
+        String json = objectMapper.writeValueAsString(menuItem);
+        // 創建Http request
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .put("/menus/{menuId}",1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        // 執行Http request
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -39,10 +42,10 @@ public class TimeQueryParams {
             this.endTime = Date.from(today.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
         } else if (beginTime.after(endTime)) {
             log.warn("起始時間晚於結束時間");
-            throw new IllegalArgumentException();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         } else if (beginTime.after(now) || endTime.after(now)) {
             log.warn("輸入時間晚於當前時間");
-            throw new IllegalArgumentException();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         } else {
             this.beginTime = beginTime;
             this.endTime = endTime;

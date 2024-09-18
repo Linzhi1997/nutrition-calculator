@@ -1,5 +1,6 @@
 package com.serena.nutritioncalculator.server.Impl;
 
+import com.serena.nutritioncalculator.constant.MealType;
 import com.serena.nutritioncalculator.dao.*;
 import com.serena.nutritioncalculator.dto.MenuItem;
 import com.serena.nutritioncalculator.dto.PagingQueryParams;
@@ -67,6 +68,14 @@ public class MenuServerImpl implements MenuServer {
     public void updateMenu(Integer menuId, MenuItem menuItem) {
         if(menuId==null){
             log.warn("menu: {} 不存在", menuId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        if(foodDao.getFoodById(menuItem.getFoodId())==null){
+            log.warn("Food: {} 不存在", menuItem.getFoodId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        if(MealType.valueOf(menuItem.getMealType().toString())==null){
+            log.warn("menuType: {} 不存在", menuItem.getMealType());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         menuDao.updateMenu(menuId, menuItem);
