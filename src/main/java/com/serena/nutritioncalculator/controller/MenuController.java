@@ -9,6 +9,8 @@ import com.serena.nutritioncalculator.server.MenuServer;
 import com.serena.nutritioncalculator.util.Page;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
+@EnableCaching
 public class MenuController {
 
     @Autowired
@@ -27,26 +30,36 @@ public class MenuController {
 
     // 創建一筆飲食紀錄
     @PostMapping("/users/{userId}/menus")
+    @CacheEvict(value = "dailyRecordCache", allEntries = true)
     public ResponseEntity<Menu> createMenu(@PathVariable Integer userId,
                                            @RequestBody @Valid MenuItem menuItem){
         Integer menuId = menuServer.createMenu(userId, menuItem);
         Menu menu = menuServer.getMenuById(menuId);
+        // 更新今日統計表
+        dailyServer.updateDailyRecordForToday(userId,null);
         return ResponseEntity.status(HttpStatus.CREATED).body(menu);
     }
 
     // 更新一筆飲食紀錄
     @PutMapping("/menus/{menuId}")
+    @CacheEvict(value = "dailyRecordCache", allEntries = true)
     public ResponseEntity<Menu> updateMenu(@PathVariable Integer menuId,
                                            @RequestBody MenuItem menuItem){
         menuServer.updateMenu(menuId, menuItem);
         Menu menu = menuServer.getMenuById(menuId);
+        // 更新今日統計表
+        dailyServer.updateDailyRecordForToday(menu.getUserId(),null);
         return ResponseEntity.status(HttpStatus.CREATED).body(menu);
     }
 
     // 刪除一筆飲食紀錄
     @DeleteMapping("/menus/{menuId}")
+    @CacheEvict(value = "dailyRecordCache", allEntries = true)
     public ResponseEntity<Menu> deleteMenu(@PathVariable Integer menuId){
         menuServer.deleteMenu(menuId);
+        // 更新今日統計表
+        Menu menu = menuServer.getMenuById(menuId);
+        dailyServer.updateDailyRecordForToday(menu.getMenuId(),null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

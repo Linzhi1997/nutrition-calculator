@@ -33,7 +33,7 @@ public class DailyServerImpl implements DailyServer {
     DailyDao dailyDao;
 
     @Override
-    public Integer createDailyRecordForToday(Integer userId, DailyCreateRequest dailyCreateRequest) {
+    public Integer updateDailyRecordForToday(Integer userId, Integer recommendCal) {
         // 檢查 user 是否存在
         User user = userDao.getUserById(userId);
         if(user==null){
@@ -47,13 +47,7 @@ public class DailyServerImpl implements DailyServer {
             throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         // 默認0點起始時間
-        TimeQueryParams timeQueryParams = new TimeQueryParams();
-        // 使用者設定其他起始時間
-        if(dailyCreateRequest.getBeginTime()!=null){
-            Date beginTime = dailyCreateRequest.getBeginTime();
-            Date endTime = Date.from(beginTime.toInstant().plus(Duration.ofDays(1)));
-            timeQueryParams = new TimeQueryParams(beginTime,endTime);
-        }
+        TimeQueryParams timeQueryParams= new TimeQueryParams();
         // 執行計算
         int dailyCal = 0;
         int dailyCarbs = 0;
@@ -74,7 +68,7 @@ public class DailyServerImpl implements DailyServer {
             // 計算每日攝取熱量&三大營養素
             dailyCal = dailyCal + food.getFoodCal()*exchange;
             dailyCarbs = dailyCarbs + food.getFoodCarbs()*exchange;
-            dailyProtein = dailyProtein +food.getFoodProtein()*exchange;
+            dailyProtein = dailyProtein + food.getFoodProtein()*exchange;
             dailyFat = dailyFat + food.getFoodFat()*exchange;
         }
 
@@ -84,7 +78,6 @@ public class DailyServerImpl implements DailyServer {
         dailyParams.setDailyCarbs(dailyCarbs);
         dailyParams.setDailyProtein(dailyProtein);
         dailyParams.setDailyFat(dailyFat);
-        Integer recommendCal = dailyCreateRequest.getRecommendCal();
         if (recommendCal == null) { recommendCal =Math.round(profile.getBmr()*0.01f)*100;}
         dailyParams.setRecommendCal(recommendCal);
         dailyParams.setAchievePercent(Math.round(dailyCal*100/recommendCal)+"%");

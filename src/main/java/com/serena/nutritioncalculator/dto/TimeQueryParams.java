@@ -35,7 +35,10 @@ public class TimeQueryParams {
     // 設定時間範圍 & 檢查
     public void setTimeRange(Date beginTime, Date endTime) {
         Date now = new Date();
-        if (beginTime == null || endTime == null) {
+        if (beginTime != null && endTime == null) {
+            this.beginTime = beginTime;
+            this.endTime = now;
+        } else if (beginTime == null || endTime == null) {
             // 避免NullPoint
             LocalDate today = LocalDate.now();
             this.beginTime = Date.from(today.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault()).toInstant());
