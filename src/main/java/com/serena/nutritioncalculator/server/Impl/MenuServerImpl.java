@@ -74,10 +74,6 @@ public class MenuServerImpl implements MenuServer {
             log.warn("Food: {} 不存在", menuItem.getFoodId());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        if(MealType.valueOf(menuItem.getMealType().toString())==null){
-            log.warn("menuType: {} 不存在", menuItem.getMealType());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
         menuDao.updateMenu(menuId, menuItem);
     }
 

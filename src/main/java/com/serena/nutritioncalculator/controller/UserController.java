@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     UserServer userServer;
+    @Autowired
+    DailyServer dailyServer;
 
     @PostMapping("/users/register")
     public ResponseEntity<User> register(@RequestBody @Valid UserRegisterRequest userRegisterRequest){
@@ -25,6 +27,8 @@ public class UserController {
     @PostMapping("/users/login")
     public ResponseEntity<User> login(@RequestBody @Valid UserLoginRequest userLoginRequest){
         User user = userServer.login(userLoginRequest);
+        // 在登錄時 創建今日統計表
+        dailyServer.updateDailyRecordForToday(user.getUserId(), null);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 

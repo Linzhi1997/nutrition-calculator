@@ -14,4 +14,5 @@ public interface DailyDao {
     List<Daily> getDailyRecords(Integer userId, TimeQueryParams timeQueryParams, PagingQueryParams pagingQueryParams);
     Integer countDailyRecords(Integer userId, TimeQueryParams timeQueryParams);
     void updateDailyRecordForToday(Integer dailyId,DailyParams dailyParams);
+    void deleteUserDailyRecord(Integer userId);
 }

@@ -112,23 +112,13 @@ public class UserControllerTest {
     // 登入
     @Test
     public void login_success() throws Exception {
-        // 註冊新帳號
-        UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
-        userRegisterRequest.setUserName("Three");
-        userRegisterRequest.setEmail("test3@gmail.com");
-        userRegisterRequest.setPassword("123");
-        userRegisterRequest.setBirth(LocalDate.parse("1990-01-01"));
-        userRegisterRequest.setSex(SexCategory.valueOf("M"));
-
-        register(userRegisterRequest);
-
-        // 再測試登入功能
+        // 測試登入功能
         UserLoginRequest userLoginRequest = new UserLoginRequest();
-        userLoginRequest.setUserName(userRegisterRequest.getUserName());
-        userLoginRequest.setEmail(userRegisterRequest.getEmail());
-        userLoginRequest.setPassword(userRegisterRequest.getPassword());
+        userLoginRequest.setUserName("user3");
+        userLoginRequest.setEmail("user3@gmail.com");
+        userLoginRequest.setPassword("123");
 
-        String json = objectMapper.writeValueAsString(userRegisterRequest);
+        String json = objectMapper.writeValueAsString(userLoginRequest);
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post("/users/login")
@@ -138,8 +128,8 @@ public class UserControllerTest {
         mockMvc.perform(requestBuilder)
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$.userId", notNullValue()))
-                .andExpect(jsonPath("$.userName",equalTo("Three")))
-                .andExpect(jsonPath("$.email", equalTo("test3@gmail.com"))) // json格式中的email為e-mail
+                .andExpect(jsonPath("$.userName",equalTo("user3")))
+                .andExpect(jsonPath("$.email", equalTo("user3@gmail.com"))) // json格式中的email為e-mail
                 .andExpect(jsonPath("$.birth", notNullValue()))
                 .andExpect(jsonPath("$.sex", notNullValue()))
                 .andExpect(jsonPath("$.userCreatedDate",notNullValue()));
@@ -209,6 +199,23 @@ public class UserControllerTest {
         mockMvc.perform(requestBuilder)
                 .andExpect(status().is(400));
     }
+
+
+    @Test
+    public void get_userByEmail_success() throws Exception{
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get("/users/user1@gmail.com");
+        mockMvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId",equalTo(1)))
+                .andExpect(jsonPath("$.userName",equalTo("user1")))
+                .andExpect(jsonPath("$.email",equalTo("user1@gmail.com")))
+                .andExpect(jsonPath("$.password",notNullValue()))
+                .andExpect(jsonPath("$.sex",equalTo("女性")))
+                .andExpect(jsonPath("$.birth",equalTo("1999-12-31")))
+                .andExpect(jsonPath("$.userCreatedDate",notNullValue()));
+    }
+
     // 提煉register
     private void register(UserRegisterRequest userRegisterRequest) throws Exception {
         String json = objectMapper.writeValueAsString(userRegisterRequest);

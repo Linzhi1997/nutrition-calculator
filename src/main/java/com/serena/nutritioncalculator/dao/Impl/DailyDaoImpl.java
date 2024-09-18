@@ -53,6 +53,15 @@ public class DailyDaoImpl implements DailyDao {
     }
 
     @Override
+    public void deleteUserDailyRecord(Integer userId) {
+        String sql = "DELETE FROM daily WHERE user_id=:userId";
+        Map<String,Object> map = new HashMap<>();
+        map.put("userId",userId);
+
+        namedParameterJdbcTemplate.update(sql,map);
+    }
+
+    @Override
     public Daily getDailyById(Integer dailyId) {
         String sql = "SELECT daily_id,user_id,recommend_cal,daily_cal,daily_carbs,daily_protein,daily_fat," +
                 "achieve_percent,daily_begin_time,daily_last_modified_date " +

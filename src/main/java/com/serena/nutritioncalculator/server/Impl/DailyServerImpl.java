@@ -2,7 +2,6 @@ package com.serena.nutritioncalculator.server.Impl;
 
 import com.serena.nutritioncalculator.dao.*;
 import com.serena.nutritioncalculator.dto.DailyParams;
-import com.serena.nutritioncalculator.dto.DailyCreateRequest;
 import com.serena.nutritioncalculator.dto.PagingQueryParams;
 import com.serena.nutritioncalculator.dto.TimeQueryParams;
 import com.serena.nutritioncalculator.model.*;
@@ -14,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -35,11 +32,7 @@ public class DailyServerImpl implements DailyServer {
     @Override
     public Integer updateDailyRecordForToday(Integer userId, Integer recommendCal) {
         // 檢查 user 是否存在
-        User user = userDao.getUserById(userId);
-        if(user==null){
-            log.warn("此user: {} 不存在", userId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        checkUserExist(userId);
         // 檢查基本資料是否創建
         Profile profile = profileDao.getLastProfileByUserId(userId);
         if(profile==null){
@@ -97,17 +90,32 @@ public class DailyServerImpl implements DailyServer {
     @Override
     public Daily getDailyById(Integer dailyId) {
         Daily daily = dailyDao.getDailyById(dailyId);
+        if(daily==null){
+            log.warn("此daily: {} 不存在", dailyId);
+            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
         return daily;
     }
 
     @Override
     public List<Daily> getDailyRecords(Integer userId, TimeQueryParams timeQueryParams, PagingQueryParams pagingQueryParams) {
+        // 檢查 user 是否存在
+        checkUserExist(userId);
         return dailyDao.getDailyRecords(userId,timeQueryParams, pagingQueryParams);
     }
 
     @Override
     public Integer countDailyRecords(Integer userId, TimeQueryParams timeQueryParams) {
+        // 檢查 user 是否存在
+        checkUserExist(userId);
         return dailyDao.countDailyRecords(userId,timeQueryParams);
     }
-
+    // 提取user確認
+    private void checkUserExist(Integer userId){
+        User user = userDao.getUserById(userId);
+        if(user==null){
+            log.warn("此user: {} 不存在", userId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

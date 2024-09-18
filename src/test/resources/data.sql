@@ -36,7 +36,7 @@ INSERT INTO food (food_name,food_cal,food_carbs,food_protein,food_fat,food_locat
 VALUES('麥香燻雞三明治',334,44,14,11,'LOUISA');
 INSERT INTO food (food_name,food_cal,food_carbs,food_protein,food_fat,food_location)
 VALUES('麥香牛肉三明治',310,45,13,9,'LOUISA');
---menu
+-- menu
 INSERT INTO menu (user_id,meal_type,food_id,exchange,last_modified_date)
 VALUES(2, 'B', 1, 1, '2024-09-11 08:00:00'),
       (2,'BS', 8, 1, '2024-09-11 11:00:00'),
@@ -48,3 +48,10 @@ VALUES (2, 'B', 1, 1, '2024-09-12 08:00:00'),
        (2, 'L', 4, 1, '2024-09-12 12:00:00'),
        (2,'LS', 3, 1, '2024-09-12 12:00:00'),
        (2, 'D', 7, 1, '2024-09-12 19:00:00');
+-- daily
+INSERT INTO daily (user_id, recommend_cal, daily_cal, daily_carbs, daily_protein, daily_fat, achieve_percent,
+                   daily_begin_time, daily_last_modified_date)
+VALUES (2, 1700, 1720, 220, 85, 45, '101%', '2024-09-01 00:00:00', '2024-09-01 23:59:59');
+INSERT INTO daily (user_id, recommend_cal, daily_cal, daily_carbs, daily_protein, daily_fat, achieve_percent,
+                   daily_begin_time, daily_last_modified_date)
+VALUES (2, 1700, 1680, 210, 80, 40, '99%', '2024-09-02 00:00:00', '2024-09-02 23:59:59');

@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -31,6 +32,7 @@ public class MenuController {
     // 創建一筆飲食紀錄
     @PostMapping("/users/{userId}/menus")
     @CacheEvict(value = "dailyRecordCache", allEntries = true)
+    @Transactional
     public ResponseEntity<Menu> createMenu(@PathVariable Integer userId,
                                            @RequestBody @Valid MenuItem menuItem){
         Integer menuId = menuServer.createMenu(userId, menuItem);
@@ -43,6 +45,7 @@ public class MenuController {
     // 更新一筆飲食紀錄
     @PutMapping("/menus/{menuId}")
     @CacheEvict(value = "dailyRecordCache", allEntries = true)
+    @Transactional
     public ResponseEntity<Menu> updateMenu(@PathVariable Integer menuId,
                                            @RequestBody MenuItem menuItem){
         menuServer.updateMenu(menuId, menuItem);
@@ -55,11 +58,12 @@ public class MenuController {
     // 刪除一筆飲食紀錄
     @DeleteMapping("/menus/{menuId}")
     @CacheEvict(value = "dailyRecordCache", allEntries = true)
+    @Transactional
     public ResponseEntity<Menu> deleteMenu(@PathVariable Integer menuId){
+        Integer userId = menuServer.getMenuById(menuId).getUserId();
         menuServer.deleteMenu(menuId);
         // 更新今日統計表
-        Menu menu = menuServer.getMenuById(menuId);
-        dailyServer.updateDailyRecordForToday(menu.getMenuId(),null);
+        dailyServer.updateDailyRecordForToday(userId,null);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

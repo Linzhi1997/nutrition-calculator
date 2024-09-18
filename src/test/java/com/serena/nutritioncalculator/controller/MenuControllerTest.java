@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -43,6 +44,7 @@ class MenuControllerTest {
 
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    @Transactional
     @Test
     public void create_success() throws Exception{
         MenuItem menuItem = new MenuItem();
@@ -96,17 +98,12 @@ class MenuControllerTest {
 
     @Test
     public void get_menu_success() throws Exception{
-
-        String beginTime = "2024-09-11 08:00:00";
-        String endTime = "2024-09-12 08:00:00";
-        Integer recommendCal = 1700;
-
         // 創建Http request
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/users/{userId}/menus",2)
-                .param("beginDate", beginTime)
-                .param("endDate", endTime)
-                .param("recommendCal", recommendCal.toString())
+                .param("beginDate", "2024-09-11 08:00:00")
+                .param("endDate", "2024-09-12 08:00:00")
+                .param("recommendCal", "1700")
                 .param("limit", "10")
                 .param("offset", "0");
 
@@ -166,6 +163,7 @@ class MenuControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Transactional
     @Test
     public void delete_menu_success() throws Exception{
         // 創建Http request
@@ -178,6 +176,7 @@ class MenuControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Transactional
     @Test
     public void update_menu_success() throws Exception{
         MenuItem menuItem = new MenuItem();
@@ -188,15 +187,14 @@ class MenuControllerTest {
         String json = objectMapper.writeValueAsString(menuItem);
         // 創建Http request
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .put("/menus/{menuId}",2)
+                .put("/menus/{menuId}",1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json);
 
         // 執行Http request
         mockMvc.perform(requestBuilder)
-                .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.menuId",equalTo(2)))
+                .andExpect(jsonPath("$.menuId",equalTo(1)))
                 .andExpect(jsonPath("$.userId",equalTo(2)))
                 .andExpect(jsonPath("$.exchange",equalTo(1)))
                 .andExpect(jsonPath("$.mealType",equalTo("早餐")))
@@ -210,6 +208,7 @@ class MenuControllerTest {
                 .andExpect(jsonPath("$.foodLocation",notNullValue()));
     }
 
+    @Transactional
     @Test
     public void update_success_oneArguments() throws Exception{
         MenuItem menuItem = new MenuItem();
@@ -218,18 +217,17 @@ class MenuControllerTest {
         String json = objectMapper.writeValueAsString(menuItem);
         // 創建Http request
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .put("/menus/{menuId}",2)
+                .put("/menus/{menuId}",1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json);
 
         // 執行Http request
         mockMvc.perform(requestBuilder)
-                .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.menuId",equalTo(2)))
+                .andExpect(jsonPath("$.menuId",equalTo(1)))
                 .andExpect(jsonPath("$.userId",equalTo(2)))
                 .andExpect(jsonPath("$.exchange",equalTo(1)))
-                .andExpect(jsonPath("$.mealType",equalTo("早點")))
+                .andExpect(jsonPath("$.mealType",equalTo("早餐")))
                 .andExpect(jsonPath("$.lastModifiedDate",notNullValue()))
                 .andExpect(jsonPath("$.foodId",equalTo(11)))
                 .andExpect(jsonPath("$.foodName",notNullValue()))
