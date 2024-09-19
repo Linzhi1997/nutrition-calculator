@@ -1,6 +1,7 @@
 package com.serena.nutritioncalculator.server.Impl;
 
 
+import com.serena.nutritioncalculator.constant.FoodLocation;
 import com.serena.nutritioncalculator.dao.FoodDao;
 import com.serena.nutritioncalculator.dto.FoodQueryParams;
 import com.serena.nutritioncalculator.model.Food;
@@ -12,7 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
+import java.util.Arrays;
 
 @Component
 public class FoodServerImpl implements FoodServer {
@@ -32,6 +34,11 @@ public class FoodServerImpl implements FoodServer {
 
     @Override
     public List<Food> getFoods(FoodQueryParams foodQueryParams) {
+        Set<String> validOperator = new HashSet<>(Arrays.asList(">", "<", ">=", "<=", "="));
+        if (!validOperator.contains(foodQueryParams.getCompare())){
+            log.warn("food 比較符錯誤");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
         List<Food> foodList = foodDao.getFoods(foodQueryParams);
         return foodList;
     }
