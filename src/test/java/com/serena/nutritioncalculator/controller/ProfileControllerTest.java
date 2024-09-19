@@ -58,6 +58,7 @@ class ProfileControllerTest {
 
     @Test
     public void create_second_time_success() throws Exception{
+        // 第二次創建 只有體重必要
         ProfileCreateRequest profileCreateRequest = new ProfileCreateRequest();
         profileCreateRequest.setWeight(78.0f);
 

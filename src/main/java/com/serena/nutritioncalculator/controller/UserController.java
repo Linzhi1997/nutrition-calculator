@@ -5,6 +5,7 @@ import com.serena.nutritioncalculator.dto.*;
 import com.serena.nutritioncalculator.model.*;
 import com.serena.nutritioncalculator.server.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ public class UserController {
     UserServer userServer;
     @Autowired
     DailyServer dailyServer;
+    @Autowired
+    ProfileServer profileServer;
 
     @PostMapping("/users/register")
     public ResponseEntity<User> register(@RequestBody @Valid UserRegisterRequest userRegisterRequest){
@@ -33,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/users/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<User> getUserByEmail(@PathVariable @Email String email) {
         User user = userServer.getUserByEmail(email);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }

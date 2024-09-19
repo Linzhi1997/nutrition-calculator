@@ -20,10 +20,9 @@ public class UserServerImpl implements UserServer {
     private final static Logger log = LoggerFactory.getLogger(UserServerImpl.class);
     @Override
     public Integer register(UserRegisterRequest userRegisterRequest) {
-
-        User user =userDao.getUserByEmail(userRegisterRequest.getEmail());
+        User user = userDao.getUserByEmail(userRegisterRequest.getEmail());
         if(user!=null){
-            log.warn("該email: {}已被註冊",userRegisterRequest.getEmail());
+            log.warn("email: {}已被註冊",userRegisterRequest.getEmail());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         String hashedPassword = DigestUtils.md5DigestAsHex(userRegisterRequest.getPassword().getBytes());
@@ -39,7 +38,12 @@ public class UserServerImpl implements UserServer {
 
     @Override
     public User getUserByEmail(String email) {
-        return userDao.getUserByEmail(email);
+        User user = userDao.getUserByEmail(email);
+        if(user==null){
+            log.warn("email: {}尚未註冊",email);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        return user;
     }
 
     @Override
