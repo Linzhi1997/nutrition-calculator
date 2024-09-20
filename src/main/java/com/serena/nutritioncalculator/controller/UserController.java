@@ -31,7 +31,9 @@ public class UserController {
     public ResponseEntity<User> login(@RequestBody @Valid UserLoginRequest userLoginRequest){
         User user = userServer.login(userLoginRequest);
         // 在登錄時 創建今日統計表
-        dailyServer.updateDailyRecordForToday(user.getUserId(), null);
+        if(profileServer.getLastProfileByUserId(user.getUserId())!=null){
+            dailyServer.updateDailyRecordForToday(user.getUserId(), null);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 

@@ -106,25 +106,32 @@ public class ProfileServerImpl implements ProfileServer {
     @Override
     public Profile getLastProfileByUserId(Integer userId) {
         Profile profile = profileDao.getLastProfileByUserId(userId);
-        if (profile == null) {
-            log.warn("User: {} 尚未輸入基本資料", userId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+//        if (profile == null) {
+//            log.warn("User: {} 尚未輸入基本資料", userId);
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+//        }
+        // 未創建return null，避免無法登入
         return profile;
     }
 
     @Override
     public List<Profile> getProfileListByUserId(Integer userId) {
         List<Profile> profileList = profileDao.getProfileListByUserId(userId);
-        if (profileList == null) {
-            log.warn("User: {} 尚未建立熱量表", userId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+//        if (profileList == null) {
+//            log.warn("User: {} 尚未輸入基本資料", userId);
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+//        }
+        // 未創建return null，避免無法登入
         return profileList;
     }
 
     @Override
     public void deleteProfileById(Integer profileId) {
+        Profile profile = profileDao.getProfileById(profileId);
+        if (profile == null) {
+            log.warn("profile: {} 不存在", profileId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
         profileDao.deleteProfileById(profileId);
     }
 

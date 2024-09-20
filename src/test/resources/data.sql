@@ -1,18 +1,18 @@
 -- users
 INSERT INTO users (user_name,email, password, sex, birth, user_created_date)
-VALUES ('user1','user1@gmail.com', '202cb962ac59075b964b07152d234b70', 'F','1999-12-31', '2024-09-10');
+VALUES ('user1','user1@gmail.com', '202cb962ac59075b964b07152d234b70', 'F','1999-12-31', '2024-09-10 00:00:00');
 INSERT INTO users (user_name,email, password, sex, birth, user_created_date)
-VALUES ('user2','user2@gmail.com', '202cb962ac59075b964b07152d234b70', 'M','1999-01-31', '2024-09-10');
+VALUES ('user2','user2@gmail.com', '202cb962ac59075b964b07152d234b70', 'M','1999-01-31', '2024-09-10 00:00:00');
 INSERT INTO users (user_name,email, password, sex, birth, user_created_date)
-VALUES ('user3','user3@gmail.com', '202cb962ac59075b964b07152d234b70', 'M','1994-06-30', '2024-09-16');
+VALUES ('user3','user3@gmail.com', '202cb962ac59075b964b07152d234b70', 'M','1994-06-30', '2024-09-16 00:00:00');
 -- profile
 -- 不可建立user1的資料
 INSERT INTO profile (user_id,age,height,weight,bmi,activity,bmr,tdee,goal_weight,expected_weight_change,profile_created_date)
-VALUES (2,25,178,90,28.4,1.2,2019,2423,72.0,'理想的體重下降速度：0.4 kg/週','2024-09-10');
+VALUES (2,25,178,90.0,28.4,1.2,2019,2423,72.0,'理想的體重下降速度：0.4 kg/週','2024-09-10 00:00:00');
 INSERT INTO profile (user_id,age,height,weight,bmi,activity,bmr,tdee,goal_weight,expected_weight_change,profile_created_date)
-VALUES (2,25,178,88,27.8,1.2,1992,2390,72.0,'理想的體重下降速度：0.4 kg/週','2024-09-17');
+VALUES (2,25,178,88.0,27.8,1.2,1992,2390,72.0,'理想的體重下降速度：0.4 kg/週','2024-09-17 00:00:00');
 INSERT INTO profile (user_id,age,height,weight,bmi,activity,bmr,tdee,goal_weight,expected_weight_change,profile_created_date)
-VALUES (3,30,177,85.0,27.1,1.2,1912,2294,70.0,'理想的體重下降速度：0.3 kg/週','2024-09-16');
+VALUES (3,30,177,85.0,27.1,1.2,1912,2294,70.0,'理想的體重下降速度：0.3 kg/週','2024-09-16 00:00:00');
 -- food
 INSERT INTO food (food_name,food_cal,food_carbs,food_protein,food_fat,food_location)
 VALUES('夯番薯100g',127,28,1,0,'CVS');

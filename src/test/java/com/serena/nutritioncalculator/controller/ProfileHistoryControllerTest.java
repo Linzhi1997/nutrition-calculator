@@ -16,13 +16,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ProfileHistoryControllerTest {
+public class ProfileHistoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    ProfileHistoryDao profileHistoryDao;
 
     @Test
     public void getTDEE_success() throws Exception{
@@ -89,6 +86,17 @@ class ProfileHistoryControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    public void getWeight_notExistHistory() throws Exception{
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get("/users/{userId}/profile-history",1)
+                .param("profileHistoryType","WEIGHT");
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(status().isOk());
 
     }
 }

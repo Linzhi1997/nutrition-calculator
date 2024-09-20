@@ -2,16 +2,12 @@ package com.serena.nutritioncalculator.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.serena.nutritioncalculator.constant.MealType;
-import com.serena.nutritioncalculator.dao.FoodDao;
-import com.serena.nutritioncalculator.dao.MenuDao;
-import com.serena.nutritioncalculator.dao.UserDao;
 import com.serena.nutritioncalculator.dto.MenuItem;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -26,23 +22,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
-class MenuControllerTest {
+public class MenuControllerTest {
 
     @Autowired
-    MenuDao menuDao;
-
-    @Autowired
-    FoodDao foodDao;
-
-    @Autowired
-    UserDao userDao;
-
-    @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
-
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Transactional
     @Test

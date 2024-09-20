@@ -11,8 +11,6 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -20,7 +18,6 @@ import java.util.List;
 
 @RestController
 @EnableCaching
-@EnableScheduling
 public class DailyController {
     @Autowired
     DailyServer dailyServer;

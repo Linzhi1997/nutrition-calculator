@@ -1,17 +1,8 @@
 package com.serena.nutritioncalculator.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.serena.nutritioncalculator.constant.MealType;
-import com.serena.nutritioncalculator.dao.DailyDao;
-import com.serena.nutritioncalculator.dao.FoodDao;
-import com.serena.nutritioncalculator.dao.Impl.DailyDaoImpl;
-import com.serena.nutritioncalculator.dao.MenuDao;
-import com.serena.nutritioncalculator.dao.UserDao;
 import com.serena.nutritioncalculator.dto.MenuItem;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,19 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
-class DailyControllerTest {
+public class DailyControllerTest {
 
     @Autowired
-    MenuDao menuDao;
-
-    @Autowired
-    FoodDao foodDao;
-
-    @Autowired
-    DailyDao dailyDao;
-
-    @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 

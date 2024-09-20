@@ -16,10 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class FoodControllerTest {
+public class FoodControllerTest {
 
-    @Autowired
-    FoodDao foodDao;
     @Autowired
     private MockMvc mockMvc;
 
