@@ -34,10 +34,12 @@ public class FoodServerImpl implements FoodServer {
 
     @Override
     public List<Food> getFoods(FoodQueryParams foodQueryParams) {
-        Set<String> validOperator = new HashSet<>(Arrays.asList(">", "<", ">=", "<=", "="));
-        if (!validOperator.contains(foodQueryParams.getCompare())){
-            log.warn("food 比較符錯誤");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (foodQueryParams.getCompare()!=null) {
+            Set<String> validOperator = new HashSet<>(Arrays.asList(">", "<", ">=", "<=", "="));
+            if (!validOperator.contains(foodQueryParams.getCompare())) {
+                log.warn("food 比較符錯誤");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
         }
         List<Food> foodList = foodDao.getFoods(foodQueryParams);
         return foodList;

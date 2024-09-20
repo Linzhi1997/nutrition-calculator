@@ -33,57 +33,64 @@ public class MenuServerImpl implements MenuServer {
     @Override
     public Integer createMenu(Integer userId,MenuItem menuItem) {
 
-        if(foodDao.getFoodById(menuItem.getFoodId())==null){
-            log.warn("food:{} 不存在於資料庫",menuItem.getFoodId());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        checkUserExist(userId);
+        checkFoodExist(menuItem.getFoodId());
         if (profileDao.getLastProfileByUserId(userId)==null){
             log.warn("user:{} 未建立基本資料",userId);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-
         return menuDao.createMenu(userId,menuItem);
     }
 
     @Override
     public Menu getMenuById(Integer menuId) {
-        if(menuId==null){
-            log.warn("menu: {} 不存在", menuId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        checkMenuExist(menuId);
         return menuDao.getMenuById(menuId);
     }
 
     @Override
     public List<Menu> getMenus(Integer userId, TimeQueryParams timeQueryParams, PagingQueryParams pagingQueryParams) {
+        checkUserExist(userId);
         return menuDao.getMenus(userId,timeQueryParams, pagingQueryParams);
     }
 
     @Override
     public Integer countMenu(Integer userId, TimeQueryParams timeQueryParams) {
+        checkUserExist(userId);
         return menuDao.countMenu(userId,timeQueryParams);
     }
 
     @Override
     public void updateMenu(Integer menuId, MenuItem menuItem) {
-        if(menuId==null){
-            log.warn("menu: {} 不存在", menuId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-        if(foodDao.getFoodById(menuItem.getFoodId())==null){
-            log.warn("Food: {} 不存在", menuItem.getFoodId());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        checkMenuExist(menuId);
+        checkFoodExist(menuItem.getFoodId());
         menuDao.updateMenu(menuId, menuItem);
     }
 
     @Override
     public void deleteMenu(Integer menuId) {
-        if(getMenuById(menuId)==null){
-            log.warn("MenuId: {} 不存在", menuId);
+        checkMenuExist(menuId);
+        menuDao.deleteMenu(menuId);
+    }
+
+    // 確認user food menu是否存在
+    private void checkUserExist(Integer userId) {
+        if (userDao.getUserById(userId) == null) {
+            log.warn("user: {} 不存在", userId);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        menuDao.deleteMenu(menuId);
+    }
+    private void checkMenuExist(Integer menuId) {
+        if (menuDao.getMenuById(menuId)== null) {
+            log.warn("menu: {} 不存在", menuId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+    private void checkFoodExist(Integer foodId) {
+        if (foodDao.getFoodById(foodId) == null) {
+            log.warn("food: {} 不存在", foodId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
